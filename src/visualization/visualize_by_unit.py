@@ -59,10 +59,11 @@ def create_boxplots(df, column, save_path=None, is_duration=True):
 
 def create_video_proportion_barchart(df, course, save_path=None):
     df = df[df['course_name'] == course].copy()
-    df['chapter'] = df['chapter'].astype(str)
+    df['chapter'] = df['chapter'].astype(int)
 
     # Group course data by unit and chapter and sum the media duration
     grouped = df.groupby(['chapter', 'unit'])['media_duration'].sum().unstack()
+    grouped = grouped.sort_index()
     normalized = grouped.div(grouped.sum(axis=1), axis=0)
     cmap = truncate_colormap(plt.get_cmap('coolwarm'), 0.2, 0.8)
 
@@ -108,10 +109,11 @@ def create_video_proportion_barchart(df, course, save_path=None):
 
 def create_media_proportion_barchart(df, course, save_path=None):
     df = df[df['course_name'] == course].copy()
-    df['chapter'] = df['chapter'].astype(str)
+    df['chapter'] = df['chapter'].astype(int)
 
     # Group course data by unit and chapter and sum the media duration
     grouped = df.groupby(['chapter', 'unit'])['completion_time'].sum().unstack()
+    grouped = grouped.sort_index()
     normalized = grouped.div(grouped.sum(axis=1), axis=0)
     cmap = truncate_colormap(plt.get_cmap('PiYG'), 0.2, 0.8)
 
