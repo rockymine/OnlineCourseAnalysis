@@ -85,7 +85,8 @@ def create_video_proportion_barchart(df, course, save_path=None):
     ax.set_xlabel('Normalized Duration', fontsize=20)
     ax.set_ylabel('Chapter', fontsize=20)
     plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
+    ax.set_yticks(normalized.index)
+    ax.set_yticklabels([str(int(ch)) for ch in normalized.index], fontsize=20)
 
     ax.set_xlim([0, 1])
 
@@ -135,7 +136,8 @@ def create_media_proportion_barchart(df, course, save_path=None):
     ax.set_xlabel('Normalized Duration', fontsize=20)
     ax.set_ylabel('Chapter', fontsize=20)
     plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
+    ax.set_yticks(normalized.index)
+    ax.set_yticklabels([str(int(ch)) for ch in normalized.index], fontsize=20)
 
     ax.set_xlim([0, 1])
 
