@@ -227,15 +227,18 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
     cdf['section'] = cdf['section'].astype(int)
     cdf = cdf.sort_values(['chapter', 'section'])
 
-    # Build rows: list of (chapter, label, sequence_string) tuples
+    # Build rows: list of (chapter, row_type, content) tuples
+    # row_type is 'header' (chapter label) or 'data' (symbol sequence)
     rows = []
     for chapter in sorted(cdf['chapter'].unique()):
         units = cdf[cdf['chapter'] == chapter].sort_values('section')
         unit_structures = units['unit_structure'].tolist()
 
+        # Insert a header row for this chapter
+        rows.append((chapter, 'header', f"Chapter {chapter}"))
+
         current_parts = []
         current_len = 0
-        row_index = 0
 
         for j, structure in enumerate(unit_structures):
             # +1 for the separator '|' if not the first unit in the row
@@ -244,9 +247,7 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
             if current_parts and current_len + added_len > max_elements_per_row:
                 # Flush current row
                 seq = '|'.join(current_parts)
-                label = f"Ch. {chapter}" if row_index == 0 else ""
-                rows.append((chapter, label, seq))
-                row_index += 1
+                rows.append((chapter, 'data', seq))
                 current_parts = [structure]
                 current_len = len(structure)
             else:
@@ -256,42 +257,64 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
         # Flush remaining
         if current_parts:
             seq = '|'.join(current_parts)
-            label = f"Ch. {chapter}" if row_index == 0 else ""
-            rows.append((chapter, label, seq))
+            rows.append((chapter, 'data', seq))
 
     # Find the max row width for consistent figure sizing
-    max_width = max(len(seq) for _, _, seq in rows)
+    max_width = max(len(content) for _, rtype, content in rows if rtype == 'data')
 
     # Figure dimensions
-    row_height = 0.6
+    header_height = 0.5
+    data_height = 0.6
+    total_height = sum(header_height if rtype == 'header' else data_height
+                       for _, rtype, _ in rows)
     fig_width = max(max_width * 0.35, 8)
-    fig_height = len(rows) * row_height + 1.5
+    fig_height = total_height + 1.5
 
     fig, ax = plt.subplots(figsize=(fig_width, fig_height))
-    ax.set_xlim(-1.5, max_width + 0.5)
-    ax.set_ylim(-0.5, len(rows))
+    ax.set_xlim(-0.5, max_width + 0.5)
+    ax.set_ylim(0, total_height)
     ax.axis('off')
 
-    # Draw each row (bottom-to-top so chapter 1 is at the top)
-    for row_idx, (chapter, label, seq) in enumerate(rows):
-        y = len(rows) - 1 - row_idx  # flip so ch1 is top
+    # Pre-compute y positions (top-to-bottom) and chapter band extents
+    y_positions = []
+    y_cursor = total_height  # start from the top
+    for _, rtype, _ in rows:
+        h = header_height if rtype == 'header' else data_height
+        y_center = y_cursor - h / 2
+        y_positions.append(y_center)
+        y_cursor -= h
 
-        # Alternating background: light gray for even-numbered chapters
+    # Draw background bands per chapter
+    chapter_groups = {}
+    for idx, (chapter, rtype, _) in enumerate(rows):
+        h = header_height if rtype == 'header' else data_height
+        y_top = y_positions[idx] + h / 2
+        y_bot = y_positions[idx] - h / 2
+        if chapter not in chapter_groups:
+            chapter_groups[chapter] = [y_top, y_bot]
+        else:
+            chapter_groups[chapter][1] = min(chapter_groups[chapter][1], y_bot)
+
+    for chapter, (y_top, y_bot) in chapter_groups.items():
         if chapter % 2 == 0:
             ax.add_patch(plt.Rectangle(
-                (-1.5, y - 0.4), max_width + 2, 0.8,
+                (-0.5, y_bot), max_width + 1, y_top - y_bot,
                 color='lightgray', alpha=0.3, zorder=0))
 
-        # Chapter label
-        if label:
-            ax.text(-1.5, y, label, fontsize=12, va='center', ha='left', fontweight='bold')
+    # Draw each row
+    for idx, (chapter, rtype, content) in enumerate(rows):
+        y = y_positions[idx]
 
-        # Plot symbols
-        symbols = list(seq)
-        for x, symbol in enumerate(symbols):
-            if symbol in SYMBOL_MAP:
-                shape, color = SYMBOL_MAP[symbol]
-                ax.scatter(x, y, marker=shape, color=color, s=200, zorder=3)
+        if rtype == 'header':
+            ax.text(-0.5, y, content, fontsize=11, va='center', ha='left',
+                    fontweight='bold', fontstyle='italic')
+        else:
+            # Plot symbols
+            symbols = list(content)
+            for x, symbol in enumerate(symbols):
+                if symbol in SYMBOL_MAP:
+                    shape, color = SYMBOL_MAP[symbol]
+                    ax.scatter(x, y, marker=shape, color=color, s=200, zorder=3)
 
     # Legend at the bottom
     ax.legend(
