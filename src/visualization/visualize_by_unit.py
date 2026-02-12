@@ -157,16 +157,16 @@ def create_media_proportion_barchart(df, course, save_path=None):
 
 def create_duration_boxplots(df):
     # Create boxplots for duration columns
-    create_boxplots(df, column='video_duration', save_path='figures/video_duration_boxplot.pdf')
-    create_boxplots(df, column='audio_duration', save_path='figures/audio_duration_boxplot.pdf')
-    create_boxplots(df, column='text_duration', save_path='figures/text_duration_boxplot.pdf')
-    create_boxplots(df, column='exercise_duration', save_path='figures/exercise_duration_boxplot.pdf')
-    create_boxplots(df, column='poll_duration', save_path='figures/poll_duration_boxplot.pdf')
-    create_boxplots(df, column='discussion_duration', save_path='figures/discussion_duration_boxplot.pdf')
-    create_boxplots(df, column='media_duration', save_path='figures/media_duration_boxplot.pdf')
-    create_boxplots(df, column='interaction_duration', save_path='figures/interaction_duration_boxplot.pdf')
-    create_boxplots(df, column='unit_duration', save_path='figures/unit_duration_boxplot.pdf')
-    create_boxplots(df, column='completion_time', save_path='figures/completion_time_boxplot.pdf')
+    create_boxplots(df, column='video_duration', save_path='figures/boxplots/video_duration_boxplot.pdf')
+    create_boxplots(df, column='audio_duration', save_path='figures/boxplots/audio_duration_boxplot.pdf')
+    create_boxplots(df, column='text_duration', save_path='figures/boxplots/text_duration_boxplot.pdf')
+    create_boxplots(df, column='exercise_duration', save_path='figures/boxplots/exercise_duration_boxplot.pdf')
+    create_boxplots(df, column='poll_duration', save_path='figures/boxplots/poll_duration_boxplot.pdf')
+    create_boxplots(df, column='discussion_duration', save_path='figures/boxplots/discussion_duration_boxplot.pdf')
+    create_boxplots(df, column='media_duration', save_path='figures/boxplots/media_duration_boxplot.pdf')
+    create_boxplots(df, column='interaction_duration', save_path='figures/boxplots/interaction_duration_boxplot.pdf')
+    create_boxplots(df, column='unit_duration', save_path='figures/boxplots/unit_duration_boxplot.pdf')
+    create_boxplots(df, column='completion_time', save_path='figures/boxplots/completion_time_boxplot.pdf')
 
 
 def create_individual_media_and_video_barcharts(df):
@@ -176,8 +176,8 @@ def create_individual_media_and_video_barcharts(df):
         filename = course.replace('-', '_')
 
         # Create the save path
-        save_path_video = f'figures/{filename}_video_proportion.pdf'
-        save_path_media = f'figures/{filename}_media_proportion.pdf'
+        save_path_video = f'figures/proportions/video/{filename}_video_proportion.pdf'
+        save_path_media = f'figures/proportions/media/{filename}_media_proportion.pdf'
 
         # Call the functions
         create_video_proportion_barchart(df, course=course, save_path=save_path_video)

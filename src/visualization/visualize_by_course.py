@@ -204,10 +204,10 @@ def visualize_data(input_filepath):
     df = pd.read_csv(input_filepath)
 
     # Create a stacked bar plot to visualize the distribution of building blocks on the course duration
-    create_building_block_proportions_barplot(df, 'figures/building_block_proportions_barplot.pdf')
+    create_building_block_proportions_barplot(df, 'figures/composition/building_block_proportions_barplot.pdf')
 
     # Create a Course Composition Diagram for the given sequence
-    course_composition_diagram("tvte|tvte|tvte|tve|tvee|td|t", False, True, 'figures/idf-hci_course_composition_diagram.pdf')
+    course_composition_diagram("tvte|tvte|tvte|tve|tvee|td|t", False, True, 'figures/composition/idf-hci_course_composition_diagram.pdf')
 
 
 if __name__ == '__main__':
