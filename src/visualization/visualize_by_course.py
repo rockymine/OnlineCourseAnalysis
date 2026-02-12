@@ -64,6 +64,7 @@ def create_building_block_proportions_barplot(df, save_path=None):
     if save_path is not None:
         fig.savefig(save_path, bbox_inches='tight', dpi=300)
 
+    plt.close(fig)
     return fig
 
 
@@ -187,6 +188,7 @@ def course_composition_diagram(sequence_str, highlight=True, exercise_distance=T
     if save_path is not None:
         plt.savefig(save_path)
 
+    plt.close(fig)
     return plt
 
 

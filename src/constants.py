@@ -16,7 +16,7 @@ HUE_COLORS = {
     'Fut-EC': 'green',
     'IxDF-HCI': 'pink',
     'IxDF-IDU': 'red',
-    'IxDF-UI': 'marianne'
+    'IxDF-UI': 'maroon'
 }
 
 BUILDING_BLOCK_COLORS = {

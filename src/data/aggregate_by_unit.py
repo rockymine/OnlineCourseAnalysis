@@ -108,37 +108,14 @@ def calculate_exercise_duration(df):
 
 
 def create_exercise_position_columns(df):
-    # Initialize columns with default values
-    df['has_exercises'] = False
-    df['only_exercises'] = False
-    df['multiple_exercise_blocks'] = False
-    df['starts_with_exercise'] = False
-    df['exercises_in_middle'] = False
-    df['ends_with_exercise'] = False
+    s = df['unit_structure_filtered']
 
-    for index, row in df.iterrows():
-        string = row['unit_structure_filtered']
-
-        if 'e' in string:
-            df.at[index, 'has_exercises'] = True
-        else:
-            continue
-
-        if string == 'e':
-            df.at[index, 'only_exercises'] = True
-            continue
-
-        if string.count('e') > 1:
-            df.at[index, 'multiple_exercise_blocks'] = True
-
-        if string.startswith('e'):
-            df.at[index, 'starts_with_exercise'] = True
-
-        if string.endswith('e'):
-            df.at[index, 'ends_with_exercise'] = True
-
-        if 'e' in string[1:-1]:
-            df.at[index, 'exercises_in_middle'] = True
+    df['has_exercises'] = s.str.contains('e', regex=False)
+    df['only_exercises'] = s == 'e'
+    df['multiple_exercise_blocks'] = df['has_exercises'] & (s.str.count('e') > 1)
+    df['starts_with_exercise'] = df['has_exercises'] & ~df['only_exercises'] & s.str.startswith('e')
+    df['ends_with_exercise'] = df['has_exercises'] & ~df['only_exercises'] & s.str.endswith('e')
+    df['exercises_in_middle'] = df['has_exercises'] & ~df['only_exercises'] & s.str.slice(1, -1).str.contains('e', regex=False)
 
     return df
 

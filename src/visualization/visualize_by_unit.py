@@ -35,7 +35,9 @@ def create_boxplots(df, column, save_path=None, is_duration=True):
                 medianprops={"color": "coral"})
 
     # Rotate the x-axis labels for readability
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+    ax.tick_params(axis='x', rotation=45)
+    for label in ax.get_xticklabels():
+        label.set_horizontalalignment('right')
 
     ax.set_xlabel('Course', fontsize=20)
     ax.set_ylabel(format_string(column), fontsize=20)
@@ -51,6 +53,7 @@ def create_boxplots(df, column, save_path=None, is_duration=True):
     if save_path is not None:
         fig.savefig(save_path, bbox_inches='tight')
 
+    plt.close(fig)
     return fig
 
 
@@ -89,8 +92,7 @@ def create_video_proportion_barchart(df, course, save_path=None):
     sm = plt.cm.ScalarMappable(cmap=cmap)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax)
-    cbar.set_label('Video Proportion')
-    cbar.set_label('Video Proportion', fontsize=20)  # Set colorbar label font size
+    cbar.set_label('Video Proportion', fontsize=20)
     cbar.ax.tick_params(labelsize=20)  # Set colorbar tick font size
 
     # Adjust layout
@@ -100,6 +102,7 @@ def create_video_proportion_barchart(df, course, save_path=None):
     if save_path is not None:
         fig.savefig(save_path)
 
+    plt.close(fig)
     return fig
 
 
@@ -148,6 +151,7 @@ def create_media_proportion_barchart(df, course, save_path=None):
     if save_path is not None:
         fig.savefig(save_path)
 
+    plt.close(fig)
     return fig
 
 
