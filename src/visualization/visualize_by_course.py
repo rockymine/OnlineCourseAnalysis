@@ -104,7 +104,7 @@ def course_composition_diagram(sequence_str, highlight=True, exercise_distance=T
         '|': ('|', 'black'),  # Section End
         'e': ('h', 'blue'),  # Exercise
         'p': ('^', 'gold'),  # Poll
-        'a': ('D', 'orange')  # Audio
+        'a': ('d', 'orange')  # Audio (thin diamond)
     }
 
     # Convert the string into a list of characters
@@ -203,7 +203,7 @@ SYMBOL_MAP = {
     '|': ('|', 'black'),     # Unit separator
     'e': ('h', 'blue'),      # Exercise
     'p': ('^', 'gold'),      # Poll
-    'a': ('D', 'orange')     # Audio
+    'a': ('d', 'orange')     # Audio (thin diamond)
 }
 
 LEGEND_ELEMENTS = [
@@ -213,11 +213,11 @@ LEGEND_ELEMENTS = [
     Line2D([0], [0], marker='o', color='purple', label='Discussion', markersize=15, linestyle='None'),
     Line2D([0], [0], marker='h', color='blue', label='Exercise', markersize=15, linestyle='None'),
     Line2D([0], [0], marker='^', color='gold', label='Poll', markersize=15, linestyle='None'),
-    Line2D([0], [0], marker='D', color='orange', label='Audio', markersize=15, linestyle='None')
+    Line2D([0], [0], marker='d', color='orange', label='Audio', markersize=15, linestyle='None')
 ]
 
 
-def create_full_course_composition_diagram(unit_df, course, max_elements_per_row=50, save_path=None):
+def create_full_course_composition_diagram(unit_df, course, max_elements_per_row=30, save_path=None):
     """
     Creates a full course composition diagram with chapters stacked vertically.
     Long chapters are wrapped at unit boundaries when exceeding max_elements_per_row.
