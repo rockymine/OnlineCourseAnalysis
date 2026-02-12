@@ -227,7 +227,7 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
     cdf['section'] = cdf['section'].astype(int)
     cdf = cdf.sort_values(['chapter', 'section'])
 
-    # Build rows: list of (label, sequence_string) tuples
+    # Build rows: list of (chapter, label, sequence_string) tuples
     rows = []
     for chapter in sorted(cdf['chapter'].unique()):
         units = cdf[cdf['chapter'] == chapter].sort_values('section')
@@ -245,7 +245,7 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
                 # Flush current row
                 seq = '|'.join(current_parts)
                 label = f"Ch. {chapter}" if row_index == 0 else ""
-                rows.append((label, seq))
+                rows.append((chapter, label, seq))
                 row_index += 1
                 current_parts = [structure]
                 current_len = len(structure)
@@ -257,10 +257,10 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
         if current_parts:
             seq = '|'.join(current_parts)
             label = f"Ch. {chapter}" if row_index == 0 else ""
-            rows.append((label, seq))
+            rows.append((chapter, label, seq))
 
     # Find the max row width for consistent figure sizing
-    max_width = max(len(seq) for _, seq in rows)
+    max_width = max(len(seq) for _, _, seq in rows)
 
     # Figure dimensions
     row_height = 0.6
@@ -273,8 +273,14 @@ def create_full_course_composition_diagram(unit_df, course, max_elements_per_row
     ax.axis('off')
 
     # Draw each row (bottom-to-top so chapter 1 is at the top)
-    for row_idx, (label, seq) in enumerate(rows):
+    for row_idx, (chapter, label, seq) in enumerate(rows):
         y = len(rows) - 1 - row_idx  # flip so ch1 is top
+
+        # Alternating background: light gray for even-numbered chapters
+        if chapter % 2 == 0:
+            ax.add_patch(plt.Rectangle(
+                (-1.5, y - 0.4), max_width + 2, 0.8,
+                color='lightgray', alpha=0.3, zorder=0))
 
         # Chapter label
         if label:
