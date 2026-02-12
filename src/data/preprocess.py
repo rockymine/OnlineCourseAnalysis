@@ -5,11 +5,16 @@ from datetime import datetime
 
 
 def convert_to_seconds(time_str):
-    if time_str != 'nan':
-        t = datetime.strptime(time_str, "%H:%M:%S")
-        return t.hour*3600 + t.minute*60 + t.second
-    else:
+    time_str = str(time_str)
+    if time_str == 'nan' or time_str == '':
         return 0
+    # Handle timedelta format like "0 days 00:01:29"
+    if 'days' in time_str:
+        time_str = time_str.split('days')[-1].strip()
+    # Handle possible fractional seconds like "00:01:29.000000"
+    time_str = time_str.split('.')[0]
+    t = datetime.strptime(time_str, "%H:%M:%S")
+    return t.hour*3600 + t.minute*60 + t.second
 
 
 def rename_columns(df):
