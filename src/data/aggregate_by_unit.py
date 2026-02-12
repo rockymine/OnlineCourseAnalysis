@@ -460,7 +460,7 @@ def create_type_transition_summary_provider(input_filepath, provider, output_fil
 if __name__ == '__main__':
     aggregate_data('data/processed/cleaned_data.csv', 'data/processed/aggregated_by_unit_data.csv')
     #create_type_transition_summary('data/processed/aggregated_by_unit_data.csv', 'data/processed/type_transition.csv')
-    #create_type_transition_summary_provider('data/processed/aggregated_by_unit_data.csv', 'IxDF',
+    #create_type_transition_summary_provider('data/processed/aggregated_by_unit_data.csv', 'IDF',
     #                                        'data/processed/type_transition_idf.csv')
     #create_type_transition_summary_provider('data/processed/aggregated_by_unit_data.csv', 'Udacity',
     #                                        'data/processed/type_transition_uda.csv')

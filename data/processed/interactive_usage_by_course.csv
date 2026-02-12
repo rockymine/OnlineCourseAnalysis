@@ -1,9 +1,9 @@
 provider_name,course_name,unit_count,chapter_count,exercise_count,discussion_count,poll_count,exercise_duration,discussion_duration,poll_duration,interaction_duration,with_exercise,with_discussion,with_poll,only_exercise,only_discussion,only_poll,starts_with_exercise,exercises_in_middle,ends_with_exercise,choice_count,coding_count,mapping_count,essay_count,short_answer_count,with_interaction
 FutureLearn,Fut-EC,26,2,4,25,0,1200.0,7500,0,8700.0,1,25,0,1,0,0,0,0,0,4,0,0,0,0,26
 FutureLearn,Fut-ENT,85,4,34,78,3,10200.0,23400,360,33960.0,7,77,3,7,0,0,0,0,0,34,0,0,0,0,84
-IxDF,IxDF-HCI,44,3,33,7,0,20100.0,2100,0,22200.0,31,7,0,0,0,0,0,0,31,49,0,0,3,0,38
-IxDF,IxDF-IDU,69,12,65,12,0,38700.0,3600,0,42300.0,55,12,0,0,0,0,0,0,55,57,0,0,12,0,67
-IxDF,IxDF-UI,70,7,59,14,0,45300.0,4200,0,49500.0,51,14,0,0,0,0,0,0,51,103,0,0,8,0,65
+IDF,IDF-HCI,44,3,33,7,0,20100.0,2100,0,22200.0,31,7,0,0,0,0,0,0,31,49,0,0,3,0,38
+IDF,IDF-IDU,69,12,65,12,0,38700.0,3600,0,42300.0,55,12,0,0,0,0,0,0,55,57,0,0,12,0,67
+IDF,IDF-UI,70,7,59,14,0,45300.0,4200,0,49500.0,51,14,0,0,0,0,0,0,51,103,0,0,8,0,65
 Udacity,Uda-CM,78,3,17,0,0,7620.0,0,0,7620.0,14,0,0,2,0,0,0,9,3,25,0,0,0,1,14
 Udacity,Uda-JS,133,7,92,0,0,101280.0,0,0,101280.0,81,0,0,46,0,0,0,5,32,52,47,3,0,4,81
 Udacity,Uda-RWD,72,5,22,0,0,17580.0,0,0,17580.0,22,0,0,5,0,0,0,4,13,23,5,2,0,9,22

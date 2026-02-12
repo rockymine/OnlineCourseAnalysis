@@ -1,6 +1,6 @@
 PROVIDER_COLORS = {
     'edX': 'darkolivegreen',
-    'IxDF': 'dimgray',
+    'IDF': 'dimgray',
     'FutureLearn': 'magenta',
     'Udacity': 'navy'
 }
@@ -14,9 +14,9 @@ HUE_COLORS = {
     'edX-PL': 'darkgrey',
     'Fut-ENT': 'lightgreen',
     'Fut-EC': 'green',
-    'IxDF-HCI': 'pink',
-    'IxDF-IDU': 'red',
-    'IxDF-UI': 'maroon'
+    'IDF-HCI': 'pink',
+    'IDF-IDU': 'red',
+    'IDF-UI': 'maroon'
 }
 
 BUILDING_BLOCK_COLORS = {
@@ -34,7 +34,7 @@ MARKER_STYLES = {
     'Udacity': 'x',
     'edX': '^',
     'FutureLearn': 'o',
-    'IxDF': '+'
+    'IDF': '+'
 }
 
 MEDIA_INTERACTION_COLORS = {

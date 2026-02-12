@@ -78,6 +78,14 @@ def map_task_type(df):
     return df
 
 
+def map_provider_name(df):
+    provider_mapping = {
+        'IxDF': 'IDF'
+    }
+    df['provider_name'] = df['provider_name'].replace(provider_mapping)
+    return df
+
+
 def map_course_name(df):
     course_mapping = {
         'Intro to JavaScript': 'Uda-JS',
@@ -88,9 +96,9 @@ def map_course_name(df):
         'Programming for Everyone - An Introduction to Visual Programming Languages': 'edX-PL',
         'Entrepreneurship: From Business Idea to Action': 'Fut-ENT',
         'Introduction to Encription and Cryptography': 'Fut-EC',
-        'Human-Computer Interaction': 'IxDF-HCI',
-        'Interaction Design for Usability': 'IxDF-IDU',
-        'UI Design Patterns for Successful Software': 'IxDF-UI'
+        'Human-Computer Interaction': 'IDF-HCI',
+        'Interaction Design for Usability': 'IDF-IDU',
+        'UI Design Patterns for Successful Software': 'IDF-UI'
     }
     df['course_name'] = df['course_name'].map(course_mapping)
     return df
@@ -141,6 +149,7 @@ def preprocess_data(raw_data_filepath, processed_data_filepath):
     # Map the values
     df = map_building_block(df)
     df = map_task_type(df)
+    df = map_provider_name(df)
     df = map_course_name(df)
 
     # Remove some entries
