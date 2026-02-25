@@ -35,7 +35,9 @@ def create_boxplots(df, column, save_path=None, is_duration=True):
                 medianprops={"color": "coral"})
 
     # Rotate the x-axis labels for readability
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+    ax.tick_params(axis='x', rotation=45)
+    for label in ax.get_xticklabels():
+        label.set_horizontalalignment('right')
 
     ax.set_xlabel('Course', fontsize=20)
     ax.set_ylabel(format_string(column), fontsize=20)
@@ -51,15 +53,17 @@ def create_boxplots(df, column, save_path=None, is_duration=True):
     if save_path is not None:
         fig.savefig(save_path, bbox_inches='tight')
 
+    plt.close(fig)
     return fig
 
 
 def create_video_proportion_barchart(df, course, save_path=None):
     df = df[df['course_name'] == course].copy()
-    df['chapter'] = df['chapter'].astype(str)
+    df['chapter'] = df['chapter'].astype(int)
 
     # Group course data by unit and chapter and sum the media duration
     grouped = df.groupby(['chapter', 'unit'])['media_duration'].sum().unstack()
+    grouped = grouped.sort_index()
     normalized = grouped.div(grouped.sum(axis=1), axis=0)
     cmap = truncate_colormap(plt.get_cmap('coolwarm'), 0.2, 0.8)
 
@@ -81,7 +85,8 @@ def create_video_proportion_barchart(df, course, save_path=None):
     ax.set_xlabel('Normalized Duration', fontsize=20)
     ax.set_ylabel('Chapter', fontsize=20)
     plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
+    ax.set_yticks(normalized.index)
+    ax.set_yticklabels([str(int(ch)) for ch in normalized.index], fontsize=20)
 
     ax.set_xlim([0, 1])
 
@@ -89,8 +94,7 @@ def create_video_proportion_barchart(df, course, save_path=None):
     sm = plt.cm.ScalarMappable(cmap=cmap)
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax)
-    cbar.set_label('Video Proportion')
-    cbar.set_label('Video Proportion', fontsize=20)  # Set colorbar label font size
+    cbar.set_label('Video Proportion', fontsize=20)
     cbar.ax.tick_params(labelsize=20)  # Set colorbar tick font size
 
     # Adjust layout
@@ -100,15 +104,17 @@ def create_video_proportion_barchart(df, course, save_path=None):
     if save_path is not None:
         fig.savefig(save_path)
 
+    plt.close(fig)
     return fig
 
 
 def create_media_proportion_barchart(df, course, save_path=None):
     df = df[df['course_name'] == course].copy()
-    df['chapter'] = df['chapter'].astype(str)
+    df['chapter'] = df['chapter'].astype(int)
 
     # Group course data by unit and chapter and sum the media duration
     grouped = df.groupby(['chapter', 'unit'])['completion_time'].sum().unstack()
+    grouped = grouped.sort_index()
     normalized = grouped.div(grouped.sum(axis=1), axis=0)
     cmap = truncate_colormap(plt.get_cmap('PiYG'), 0.2, 0.8)
 
@@ -130,7 +136,8 @@ def create_media_proportion_barchart(df, course, save_path=None):
     ax.set_xlabel('Normalized Duration', fontsize=20)
     ax.set_ylabel('Chapter', fontsize=20)
     plt.xticks(fontsize=20)
-    plt.yticks(fontsize=20)
+    ax.set_yticks(normalized.index)
+    ax.set_yticklabels([str(int(ch)) for ch in normalized.index], fontsize=20)
 
     ax.set_xlim([0, 1])
 
@@ -148,21 +155,22 @@ def create_media_proportion_barchart(df, course, save_path=None):
     if save_path is not None:
         fig.savefig(save_path)
 
+    plt.close(fig)
     return fig
 
 
 def create_duration_boxplots(df):
     # Create boxplots for duration columns
-    create_boxplots(df, column='video_duration', save_path='figures/video_duration_boxplot.pdf')
-    create_boxplots(df, column='audio_duration', save_path='figures/audio_duration_boxplot.pdf')
-    create_boxplots(df, column='text_duration', save_path='figures/text_duration_boxplot.pdf')
-    create_boxplots(df, column='exercise_duration', save_path='figures/exercise_duration_boxplot.pdf')
-    create_boxplots(df, column='poll_duration', save_path='figures/poll_duration_boxplot.pdf')
-    create_boxplots(df, column='discussion_duration', save_path='figures/discussion_duration_boxplot.pdf')
-    create_boxplots(df, column='media_duration', save_path='figures/media_duration_boxplot.pdf')
-    create_boxplots(df, column='interaction_duration', save_path='figures/interaction_duration_boxplot.pdf')
-    create_boxplots(df, column='unit_duration', save_path='figures/unit_duration_boxplot.pdf')
-    create_boxplots(df, column='completion_time', save_path='figures/completion_time_boxplot.pdf')
+    create_boxplots(df, column='video_duration', save_path='figures/boxplots/video_duration_boxplot.pdf')
+    create_boxplots(df, column='audio_duration', save_path='figures/boxplots/audio_duration_boxplot.pdf')
+    create_boxplots(df, column='text_duration', save_path='figures/boxplots/text_duration_boxplot.pdf')
+    create_boxplots(df, column='exercise_duration', save_path='figures/boxplots/exercise_duration_boxplot.pdf')
+    create_boxplots(df, column='poll_duration', save_path='figures/boxplots/poll_duration_boxplot.pdf')
+    create_boxplots(df, column='discussion_duration', save_path='figures/boxplots/discussion_duration_boxplot.pdf')
+    create_boxplots(df, column='media_duration', save_path='figures/boxplots/media_duration_boxplot.pdf')
+    create_boxplots(df, column='interaction_duration', save_path='figures/boxplots/interaction_duration_boxplot.pdf')
+    create_boxplots(df, column='unit_duration', save_path='figures/boxplots/unit_duration_boxplot.pdf')
+    create_boxplots(df, column='completion_time', save_path='figures/boxplots/completion_time_boxplot.pdf')
 
 
 def create_individual_media_and_video_barcharts(df):
@@ -172,8 +180,8 @@ def create_individual_media_and_video_barcharts(df):
         filename = course.replace('-', '_')
 
         # Create the save path
-        save_path_video = f'figures/{filename}_video_proportion.pdf'
-        save_path_media = f'figures/{filename}_media_proportion.pdf'
+        save_path_video = f'figures/proportions/video/{filename}_video_proportion.pdf'
+        save_path_media = f'figures/proportions/media/{filename}_media_proportion.pdf'
 
         # Call the functions
         create_video_proportion_barchart(df, course=course, save_path=save_path_video)

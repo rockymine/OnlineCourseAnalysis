@@ -64,6 +64,7 @@ def create_building_block_proportions_barplot(df, save_path=None):
     if save_path is not None:
         fig.savefig(save_path, bbox_inches='tight', dpi=300)
 
+    plt.close(fig)
     return fig
 
 
@@ -101,7 +102,9 @@ def course_composition_diagram(sequence_str, highlight=True, exercise_distance=T
         't': ('s', 'green'),  # Text
         'd': ('o', 'purple'),  # Discussion
         '|': ('|', 'black'),  # Section End
-        'e': ('h', 'blue')  # Exercise
+        'e': ('h', 'blue'),  # Exercise
+        'p': ('^', 'gold'),  # Poll
+        'a': ('d', 'orange')  # Audio (thin diamond)
     }
 
     # Convert the string into a list of characters
@@ -163,14 +166,16 @@ def course_composition_diagram(sequence_str, highlight=True, exercise_distance=T
         Line2D([0], [0], marker='>', color='red', label='Video', markersize=15, linestyle='None'),
         Line2D([0], [0], marker='s', color='green', label='Text', markersize=15, linestyle='None'),
         Line2D([0], [0], marker='o', color='purple', label='Discussion', markersize=15, linestyle='None'),
-        Line2D([0], [0], marker='h', color='blue', label='Exercise', markersize=15, linestyle='None')
+        Line2D([0], [0], marker='h', color='blue', label='Exercise', markersize=15, linestyle='None'),
+        Line2D([0], [0], marker='^', color='gold', label='Poll', markersize=15, linestyle='None'),
+        Line2D([0], [0], marker='D', color='orange', label='Audio', markersize=15, linestyle='None')
     ]
 
     ax.legend(
         handles=legend_elements,
         loc='center',
         bbox_to_anchor=(0.5, -0.5),
-        ncol=5,
+        ncol=7,
         frameon=True,
         framealpha=0.7,
         facecolor='lightgray',
@@ -187,26 +192,183 @@ def course_composition_diagram(sequence_str, highlight=True, exercise_distance=T
     if save_path is not None:
         plt.savefig(save_path)
 
+    plt.close(fig)
     return plt
 
 
-def visualize_data(input_filepath):
+SYMBOL_MAP = {
+    'v': ('>', 'red'),       # Video
+    't': ('s', 'green'),     # Text
+    'd': ('o', 'purple'),    # Discussion
+    '|': ('|', 'black'),     # Unit separator
+    'e': ('h', 'blue'),      # Exercise
+    'p': ('^', 'gold'),      # Poll
+    'a': ('d', 'orange')     # Audio (thin diamond)
+}
+
+LEGEND_ELEMENTS = [
+    Line2D([0], [0], marker='|', color='black', label='Unit Start/End', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='>', color='red', label='Video', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='s', color='green', label='Text', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='o', color='purple', label='Discussion', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='h', color='blue', label='Exercise', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='^', color='gold', label='Poll', markersize=15, linestyle='None'),
+    Line2D([0], [0], marker='d', color='orange', label='Audio', markersize=15, linestyle='None')
+]
+
+
+def create_full_course_composition_diagram(unit_df, course, max_elements_per_row=30, save_path=None):
+    """
+    Creates a full course composition diagram with chapters stacked vertically.
+    Long chapters are wrapped at unit boundaries when exceeding max_elements_per_row.
+    """
+    cdf = unit_df[unit_df['course_name'] == course].copy()
+    cdf['chapter'] = cdf['chapter'].astype(int)
+    cdf['section'] = cdf['section'].astype(int)
+    cdf = cdf.sort_values(['chapter', 'section'])
+
+    # Build rows: list of (chapter, row_type, content) tuples
+    # row_type is 'header' (chapter label) or 'data' (symbol sequence)
+    rows = []
+    for chapter in sorted(cdf['chapter'].unique()):
+        units = cdf[cdf['chapter'] == chapter].sort_values('section')
+        unit_structures = units['unit_structure'].tolist()
+
+        # Insert a header row for this chapter
+        rows.append((chapter, 'header', f"Chapter {chapter}"))
+
+        current_parts = []
+        current_len = 0
+
+        for j, structure in enumerate(unit_structures):
+            # +1 for the separator '|' if not the first unit in the row
+            added_len = len(structure) + (1 if current_parts else 0)
+
+            if current_parts and current_len + added_len > max_elements_per_row:
+                # Flush current row
+                seq = '|'.join(current_parts)
+                rows.append((chapter, 'data', seq))
+                current_parts = [structure]
+                current_len = len(structure)
+            else:
+                current_parts.append(structure)
+                current_len += added_len
+
+        # Flush remaining
+        if current_parts:
+            seq = '|'.join(current_parts)
+            rows.append((chapter, 'data', seq))
+
+    # Find the max row width for consistent figure sizing
+    max_width = max(len(content) for _, rtype, content in rows if rtype == 'data')
+
+    # Figure dimensions
+    header_height = 0.5
+    data_height = 0.6
+    total_height = sum(header_height if rtype == 'header' else data_height
+                       for _, rtype, _ in rows)
+    fig_width = max(max_width * 0.35, 8)
+    fig_height = total_height + 1.5
+
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
+    ax.set_xlim(-0.5, max_width + 0.5)
+    ax.set_ylim(0, total_height)
+    ax.axis('off')
+
+    # Pre-compute y positions (top-to-bottom) and chapter band extents
+    y_positions = []
+    y_cursor = total_height  # start from the top
+    for _, rtype, _ in rows:
+        h = header_height if rtype == 'header' else data_height
+        y_center = y_cursor - h / 2
+        y_positions.append(y_center)
+        y_cursor -= h
+
+    # Draw background bands per chapter
+    chapter_groups = {}
+    for idx, (chapter, rtype, _) in enumerate(rows):
+        h = header_height if rtype == 'header' else data_height
+        y_top = y_positions[idx] + h / 2
+        y_bot = y_positions[idx] - h / 2
+        if chapter not in chapter_groups:
+            chapter_groups[chapter] = [y_top, y_bot]
+        else:
+            chapter_groups[chapter][1] = min(chapter_groups[chapter][1], y_bot)
+
+    for chapter, (y_top, y_bot) in chapter_groups.items():
+        if chapter % 2 == 0:
+            ax.add_patch(plt.Rectangle(
+                (-0.5, y_bot), max_width + 1, y_top - y_bot,
+                color='lightgray', alpha=0.3, zorder=0))
+
+    # Draw each row
+    for idx, (chapter, rtype, content) in enumerate(rows):
+        y = y_positions[idx]
+
+        if rtype == 'header':
+            ax.text(-0.5, y, content, fontsize=11, va='center', ha='left',
+                    fontweight='bold', fontstyle='italic')
+        else:
+            # Plot symbols
+            symbols = list(content)
+            for x, symbol in enumerate(symbols):
+                if symbol in SYMBOL_MAP:
+                    shape, color = SYMBOL_MAP[symbol]
+                    ax.scatter(x, y, marker=shape, color=color, s=200, zorder=3)
+
+    # Legend at the bottom
+    ax.legend(
+        handles=LEGEND_ELEMENTS,
+        loc='center',
+        bbox_to_anchor=(0.5, -0.02),
+        ncol=7,
+        frameon=True,
+        framealpha=0.7,
+        facecolor='lightgray',
+        edgecolor='none',
+        markerscale=1.2,
+        borderpad=0.6,
+        fontsize=10
+    )
+
+    plt.tight_layout()
+
+    if save_path is not None:
+        fig.savefig(save_path, bbox_inches='tight', dpi=300)
+
+    plt.close(fig)
+    return fig
+
+
+def create_all_course_composition_diagrams(unit_df):
+    for course in unit_df['course_name'].unique():
+        filename = course.replace('-', '_')
+        save_path = f'figures/composition/{filename}_course_composition.pdf'
+        create_full_course_composition_diagram(unit_df, course, save_path=save_path)
+
+
+def visualize_data(course_filepath, unit_filepath):
     """
     Create visualizations for the data in the DataFrame located at input_filepath.
 
     Parameters:
-    input_filepath (str): The file path to the DataFrame.
+    course_filepath (str): The file path to the course-level aggregated DataFrame.
+    unit_filepath (str): The file path to the unit-level aggregated DataFrame.
     """
 
     # Load the data
-    df = pd.read_csv(input_filepath)
+    df = pd.read_csv(course_filepath)
+    unit_df = pd.read_csv(unit_filepath)
 
     # Create a stacked bar plot to visualize the distribution of building blocks on the course duration
-    create_building_block_proportions_barplot(df, 'figures/building_block_proportions_barplot.pdf')
+    create_building_block_proportions_barplot(df, 'figures/composition/building_block_proportions_barplot.pdf')
 
-    # Create a Course Composition Diagram for the given sequence
-    course_composition_diagram("tvte|tvte|tvte|tve|tvee|td|t", False, True, 'figures/idf-hci_course_composition_diagram.pdf')
+    # Create a Course Composition Diagram for the given sequence (example section)
+    course_composition_diagram("tvte|tvte|tvte|tve|tvee|td|t", False, True, 'figures/composition/idf-hci_course_composition_diagram.pdf')
+
+    # Create full course composition diagrams for all courses
+    create_all_course_composition_diagrams(unit_df)
 
 
 if __name__ == '__main__':
-    visualize_data('data/processed/aggregated_by_course_data.csv')
+    visualize_data('data/processed/aggregated_by_course_data.csv', 'data/processed/aggregated_by_unit_data.csv')
